@@ -3,16 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <!-- 1. CAMBIO DE TÍTULO -->
-    <title>GruProde 2026 - AM Quilmes</title>
+    <title>GruProde 2026 - Grupo 3</title>
     
     <!-- Etiquetas PWA para instalación en el celu -->
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <!-- 2. CAMBIO DE NOMBRE DE APP INSTALADA -->
-    <meta name="apple-mobile-web-app-title" content="Prode Quilmes">
-    <link rel="manifest" href='data:application/manifest+json,{"name":"GruProde Quilmes 2026","short_name":"Prode Quilmes","display":"standalone","background_color":"#74ACDF","theme_color":"#74ACDF"}'>
+    <meta name="apple-mobile-web-app-title" content="GruProde">
+    <link rel="manifest" href='data:application/manifest+json,{"name":"GruProde 2026","short_name":"GruProde","display":"standalone","background_color":"#74ACDF","theme_color":"#74ACDF"}'>
     
     <!-- Tailwind CSS para los estilos -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -22,7 +20,7 @@
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     
     <!-- Babel para traducir JSX en vivo -->
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone@7.23.10/babel.min.js"></script>
 
     <!-- Firebase -->
     <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
@@ -48,8 +46,9 @@
                 appId: "1:642143421766:web:28672abc1fe76d94759147"
             };
 
-        // 👇 3. ID EXCLUSIVO PARA AM QUILMES (Pronósticos y Ranking) 👇
-        const PRODE_APP_ID = typeof __app_id !== 'undefined' ? __app_id : 'prode-quilmes-2026';
+        // 👇 ID DE LA BASE DE DATOS DEL GRUPO 3 👇
+        const PRODE_APP_ID = typeof __app_id !== 'undefined' ? __app_id : 'prode-G3com-final';
+        const MASTER_RESULTS_ID = 'prode-master-2026'
 
         // Inicializamos Firebase
         firebase.initializeApp(firebaseConfig);
@@ -70,7 +69,7 @@
 
         const { useState, useEffect, useRef, useMemo } = React;
 
-        // --- DEFINICIÓN DE LOS EQUIPOS ---
+        // --- DEFINICIÓN DE LOS EQUIPOS CON SUS CÓDIGOS DE BANDERA OFICIALES (ISO 3166-1) ---
         const TOURNAMENT_GROUPS = {
             'A': [{ name: 'México', code: 'mx' }, { name: 'Sudáfrica', code: 'za' }, { name: 'Corea del Sur', code: 'kr' }, { name: 'Rep. Checa', code: 'cz' }],
             'B': [{ name: 'Canadá', code: 'ca' }, { name: 'Bosnia y Herz.', code: 'ba' }, { name: 'Qatar', code: 'qa' }, { name: 'Suiza', code: 'ch' }],
@@ -86,10 +85,12 @@
             'L': [{ name: 'Inglaterra', code: 'gb-eng' }, { name: 'Croacia', code: 'hr' }, { name: 'Ghana', code: 'gh' }, { name: 'Panamá', code: 'pa' }]
         };
 
+        // Función que trae la imagen de la bandera desde FlagCDN
         const getFlag = (teamName) => {
             if (teamName.includes('Ganador') || teamName.includes('Perdedor') || teamName.includes('Grupo')) return '❓';
             if (teamName === 'TBD Final') return '🏆';
             if (teamName === 'TBD 3er') return '🥉';
+            
             for (const group of Object.values(TOURNAMENT_GROUPS)) {
                 const team = group.find(t => t.name === teamName);
                 if (team) return `https://flagcdn.com/w40/${team.code}.png`;
@@ -97,31 +98,33 @@
             return '❓';
         };
 
+        // Función constructora para comprimir el código y que no se corte
         const m = (id, stage, home, away, date) => ({
             id, stage, home, homeFlag: getFlag(home), away, awayFlag: getFlag(away),
             date, status: 'pending', realHomeScore: null, realAwayScore: null
         });
 
-        // --- LOS 104 PARTIDOS OFICIALES ---
+        // --- LOS 104 PARTIDOS OFICIALES (Hora Argentina UTC-3) ---
         const initialMatches = [
+            // GRUPOS
             m(1, 'grupos', 'México', 'Sudáfrica', '11 Jun 2026 - 16:00'), m(2, 'grupos', 'Corea del Sur', 'Rep. Checa', '11 Jun 2026 - 23:00'),
             m(3, 'grupos', 'Canadá', 'Bosnia y Herz.', '12 Jun 2026 - 16:00'), m(4, 'grupos', 'EE.UU.', 'Paraguay', '12 Jun 2026 - 22:00'),
             m(5, 'grupos', 'Qatar', 'Suiza', '13 Jun 2026 - 16:00'), m(6, 'grupos', 'Brasil', 'Marruecos', '13 Jun 2026 - 19:00'),
-            m(7, 'grupos', 'Haití', 'Escocia', '13 Jun 2026 - 22:00'), m(8, 'grupos', 'Australia', 'Turquía', '13 Jun 2026 - 01:00'),
+            m(7, 'grupos', 'Haití', 'Escocia', '13 Jun 2026 - 22:00'), m(8, 'grupos', 'Australia', 'Turquía', '14 Jun 2026 - 01:00'),
             m(9, 'grupos', 'Alemania', 'Curazao', '14 Jun 2026 - 14:00'), m(10, 'grupos', 'Países Bajos', 'Japón', '14 Jun 2026 - 17:00'),
             m(11, 'grupos', 'C. de Marfil', 'Ecuador', '14 Jun 2026 - 20:00'), m(12, 'grupos', 'Suecia', 'Túnez', '14 Jun 2026 - 23:00'),
             m(13, 'grupos', 'España', 'Cabo Verde', '15 Jun 2026 - 13:00'), m(14, 'grupos', 'Bélgica', 'Egipto', '15 Jun 2026 - 16:00'),
             m(15, 'grupos', 'A. Saudita', 'Uruguay', '15 Jun 2026 - 19:00'), m(16, 'grupos', 'Irán', 'N. Zelanda', '15 Jun 2026 - 22:00'),
             m(17, 'grupos', 'Francia', 'Senegal', '16 Jun 2026 - 16:00'), m(18, 'grupos', 'Irak', 'Noruega', '16 Jun 2026 - 19:00'),
-            m(19, 'grupos', 'Argentina', 'Argelia', '16 Jun 2026 - 22:00'), m(20, 'grupos', 'Austria', 'Jordania', '16 Jun 2026 - 01:00'),
+            m(19, 'grupos', 'Argentina', 'Argelia', '16 Jun 2026 - 22:00'), m(20, 'grupos', 'Austria', 'Jordania', '17 Jun 2026 - 01:00'),
             m(21, 'grupos', 'Portugal', 'RD Congo', '17 Jun 2026 - 14:00'), m(22, 'grupos', 'Inglaterra', 'Croacia', '17 Jun 2026 - 17:00'),
             m(23, 'grupos', 'Ghana', 'Panamá', '17 Jun 2026 - 20:00'), m(24, 'grupos', 'Uzbekistán', 'Colombia', '17 Jun 2026 - 23:00'),
             m(25, 'grupos', 'Rep. Checa', 'Sudáfrica', '18 Jun 2026 - 13:00'), m(26, 'grupos', 'Suiza', 'Bosnia y Herz.', '18 Jun 2026 - 16:00'),
             m(27, 'grupos', 'Canadá', 'Qatar', '18 Jun 2026 - 19:00'), m(28, 'grupos', 'México', 'Corea del Sur', '18 Jun 2026 - 22:00'),
             m(29, 'grupos', 'EE.UU.', 'Australia', '19 Jun 2026 - 16:00'), m(30, 'grupos', 'Escocia', 'Marruecos', '19 Jun 2026 - 19:00'),
-            m(31, 'grupos', 'Brasil', 'Haití', '19 Jun 2026 - 22:00'), m(32, 'grupos', 'Turquía', 'Paraguay', '19 Jun 2026 - 01:00'),
+            m(31, 'grupos', 'Brasil', 'Haití', '19 Jun 2026 - 22:00'), m(32, 'grupos', 'Turquía', 'Paraguay', '20 Jun 2026 - 00:00'),
             m(33, 'grupos', 'Países Bajos', 'Suecia', '20 Jun 2026 - 14:00'), m(34, 'grupos', 'Alemania', 'C. de Marfil', '20 Jun 2026 - 17:00'),
-            m(35, 'grupos', 'Ecuador', 'Curazao', '20 Jun 2026 - 23:00'), m(36, 'grupos', 'Túnez', 'Japón', '20 Jun 2026 - 01:00'),
+            m(35, 'grupos', 'Ecuador', 'Curazao', '20 Jun 2026 - 21:00'), m(36, 'grupos', 'Túnez', 'Japón', '21 Jun 2026 - 01:00'),
             m(37, 'grupos', 'España', 'A. Saudita', '21 Jun 2026 - 13:00'), m(38, 'grupos', 'Bélgica', 'Irán', '21 Jun 2026 - 16:00'),
             m(39, 'grupos', 'Uruguay', 'Cabo Verde', '21 Jun 2026 - 19:00'), m(40, 'grupos', 'N. Zelanda', 'Egipto', '21 Jun 2026 - 22:00'),
             m(41, 'grupos', 'Argentina', 'Austria', '22 Jun 2026 - 14:00'), m(42, 'grupos', 'Francia', 'Irak', '22 Jun 2026 - 18:00'),
@@ -140,22 +143,32 @@
             m(67, 'grupos', 'Panamá', 'Inglaterra', '27 Jun 2026 - 18:00'), m(68, 'grupos', 'Croacia', 'Ghana', '27 Jun 2026 - 18:00'),
             m(69, 'grupos', 'Colombia', 'Portugal', '27 Jun 2026 - 20:30'), m(70, 'grupos', 'RD Congo', 'Uzbekistán', '27 Jun 2026 - 20:30'),
             m(71, 'grupos', 'Argelia', 'Austria', '27 Jun 2026 - 23:00'), m(72, 'grupos', 'Jordania', 'Argentina', '27 Jun 2026 - 23:00'),
-            m(73, '16avos', '2º Grupo A', '2º Grupo B', '28 Jun 2026'), m(74, '16avos', '1º Grupo E', '3º A/B/C/D/F', '29 Jun 2026'),
-            m(75, '16avos', '1º Grupo F', '2º Grupo C', '29 Jun 2026'), m(76, '16avos', '1º Grupo C', '2º Grupo F', '29 Jun 2026'),
-            m(77, '16avos', '1º Grupo I', '3º C/D/F/G/H', '30 Jun 2026'), m(78, '16avos', '2º Grupo E', '2º Grupo I', '30 Jun 2026'),
-            m(79, '16avos', '1º Grupo A', '3º C/E/F/H/I', '30 Jun 2026'), m(80, '16avos', '1º Grupo L', '3º E/H/I/J/K', '1 Jul 2026'),
-            m(81, '16avos', '1º Grupo D', '3º B/E/F/I/J', '1 Jul 2026'), m(82, '16avos', '1º Grupo G', '3º A/E/H/I/J', '1 Jul 2026'),
-            m(83, '16avos', '2º Grupo K', '2º Grupo L', '2 Jul 2026'), m(84, '16avos', '1º Grupo H', '2º Grupo J', '2 Jul 2026'),
-            m(85, '16avos', '1º Grupo B', '3º E/F/G/I/J', '2 Jul 2026'), m(86, '16avos', '1º Grupo J', '2º Grupo H', '3 Jul 2026'),
-            m(87, '16avos', '1º Grupo K', '3º D/E/I/J/L', '3 Jul 2026'), m(88, '16avos', '2º Grupo D', '2º Grupo G', '3 Jul 2026'),
-            m(89, 'octavos', 'Ganador 74', 'Ganador 77', '4 Jul 2026'), m(90, 'octavos', 'Ganador 73', 'Ganador 75', '4 Jul 2026'),
-            m(91, 'octavos', 'Ganador 76', 'Ganador 78', '5 Jul 2026'), m(92, 'octavos', 'Ganador 79', 'Ganador 80', '5 Jul 2026'),
-            m(93, 'octavos', 'Ganador 83', 'Ganador 84', '6 Jul 2026'), m(94, 'octavos', 'Ganador 81', 'Ganador 82', '6 Jul 2026'),
-            m(95, 'octavos', 'Ganador 86', 'Ganador 88', '7 Jul 2026'), m(96, 'octavos', 'Ganador 85', 'Ganador 87', '7 Jul 2026'),
-            m(97, 'cuartos', 'Ganador 89', 'Ganador 90', '9 Jul 2026'), m(98, 'cuartos', 'Ganador 93', 'Ganador 94', '10 Jul 2026'),
-            m(99, 'cuartos', 'Ganador 91', 'Ganador 92', '11 Jul 2026'), m(100, 'cuartos', 'Ganador 95', 'Ganador 96', '11 Jul 2026'),
-            m(101, 'semis', 'Ganador 97', 'Ganador 98', '14 Jul 2026'), m(102, 'semis', 'Ganador 99', 'Ganador 100', '15 Jul 2026'),
-            m(103, '3er_puesto', 'Perdedor 101', 'Perdedor 102', '18 Jul 2026'), m(104, 'final', 'Ganador 101', 'Ganador 102', '19 Jul 2026')
+
+            // 16AVOS DE FINAL
+            m(73, '16avos', '2º Grupo A', '2º Grupo B', '28 Jun 2026 - 16:00'), m(74, '16avos', '1º Grupo E', '3º A/B/C/D/F', '29 Jun 2026 - 17:30'),
+            m(75, '16avos', '1º Grupo F', '2º Grupo C', '29 Jun 2026 - 22:00'), m(76, '16avos', '1º Grupo C', '2º Grupo F', '29 Jun 2026 - 14:00'),
+            m(77, '16avos', '1º Grupo I', '3º C/D/F/G/H', '30 Jun 2026 - 18:00'), m(78, '16avos', '2º Grupo E', '2º Grupo I', '30 Jun 2026 - 14:00'),
+            m(79, '16avos', '1º Grupo A', '3º C/E/F/H/I', '30 Jun 2026 - 22:00'), m(80, '16avos', '1º Grupo L', '3º E/H/I/J/K', '1 Jul 2026 - 13:00'),
+            m(81, '16avos', '1º Grupo D', '3º B/E/F/I/J', '1 Jul 2026 - 21:00'), m(82, '16avos', '1º Grupo G', '3º A/E/H/I/J', '1 Jul 2026 - 17:00'),
+            m(83, '16avos', '2º Grupo K', '2º Grupo L', '2 Jul 2026 - 20:00'), m(84, '16avos', '1º Grupo H', '2º Grupo J', '2 Jul 2026 - 16:00'),
+            m(85, '16avos', '1º Grupo B', '3º E/F/G/I/J', '3 Jul 2026 - 00:00'), m(86, '16avos', '1º Grupo J', '2º Grupo H', '3 Jul 2026 - 19:00'),
+            m(87, '16avos', '1º Grupo K', '3º D/E/I/J/L', '2 Jul 2026 - 22:30'), m(88, '16avos', '2º Grupo D', '2º Grupo G', '3 Jul 2026 - 16:00'),
+
+            // OCTAVOS DE FINAL
+            m(89, 'octavos', 'Ganador 74', 'Ganador 77', '4 Jul 2026 - 18:00'), m(90, 'octavos', 'Ganador 73', 'Ganador 75', '4 Jul 2026 - 14:00'),
+            m(91, 'octavos', 'Ganador 76', 'Ganador 78', '5 Jul 2026 - 17:00'), m(92, 'octavos', 'Ganador 79', 'Ganador 80', '5 Jul 2026 - 21:00'),
+            m(93, 'octavos', 'Ganador 83', 'Ganador 84', '6 Jul 2026 - 16:00'), m(94, 'octavos', 'Ganador 81', 'Ganador 82', '6 Jul 2026 - 21:00'),
+            m(95, 'octavos', 'Ganador 86', 'Ganador 88', '7 Jul 2026 - 13:00'), m(96, 'octavos', 'Ganador 85', 'Ganador 87', '7 Jul 2026 - 16:00'),
+
+            // CUARTOS DE FINAL
+            m(97, 'cuartos', 'Ganador 89', 'Ganador 90', '9 Jul 2026 - 17:00'), m(98, 'cuartos', 'Ganador 93', 'Ganador 94', '10 Jul 2026 - 16:00'),
+            m(99, 'cuartos', 'Ganador 91', 'Ganador 92', '11 Jul 2026 - 18:00'), m(100, 'cuartos', 'Ganador 95', 'Ganador 96', '11 Jul 2026 - 22:00'),
+
+            // SEMIFINALES
+            m(101, 'semis', 'Ganador 97', 'Ganador 98', '14 Jul 2026 - 16:00'), m(102, 'semis', 'Ganador 99', 'Ganador 100', '15 Jul 2026 - 20:00'),
+
+            // FINAL Y 3ER PUESTO
+            m(103, '3er_puesto', 'Perdedor 101', 'Perdedor 102', '18 Jul 2026 - 18:00'), m(104, 'final', 'Ganador 101', 'Ganador 102', '19 Jul 2026 - 16:00')
         ];
 
         const stagesList = [
@@ -164,6 +177,7 @@
             { id: 'final', label: 'Final' }
         ];
 
+        // FUNCIÓN PARA VERIFICAR SI EL PARTIDO ESTÁ BLOQUEADO (30 MIN ANTES)
         const isMatchLocked = (dateStr) => {
             if (!dateStr) return false;
             let datePart = dateStr, timePart = "23:59";
@@ -176,6 +190,7 @@
             return now.getTime() > (matchTime.getTime() - 1800000);
         };
 
+        // COMPONENTE PARA RENDERIZAR LA BANDERA O EL EMOJI
         const FlagDisplay = ({ source, name }) => {
             if (!source || source === '❓' || source === '🏆' || source === '🥉') {
                 return <span className="text-3xl mb-2 drop-shadow-sm">{source || '❓'}</span>;
@@ -226,7 +241,6 @@
             useEffect(() => {
                 if (!user) return;
 
-                // PRONÓSTICOS: Se leen de la sala aislada de AM Quilmes
                 const predsRef = db.collection('artifacts').doc(PRODE_APP_ID).collection('public').doc('data').collection('predictions');
                 const unsubPreds = predsRef.onSnapshot(
                     snap => {
@@ -237,8 +251,7 @@
                     error => console.error("Error recuperando predicciones:", error)
                 );
 
-                // RESULTADOS GLOBALES: Se leen de la sala de la empresa para evitar errores de permisos
-                const globalRef = db.collection('artifacts').doc(PRODE_APP_ID).collection('public').doc('data').collection('state').doc('global');
+                const globalRef = db.collection('artifacts').doc(MASTER_RESULTS_ID).collection('public').doc('data').collection('state').doc('global');
                 const unsubGlobal = globalRef.onSnapshot(
                     doc => {
                         if (doc.exists && doc.data().matches) {
@@ -311,12 +324,10 @@
                 }
             };
 
-            // 👇 5. GUARDADO MAESTRO DE RESULTADOS 👇
             const saveOfficialResults = () => {
                 if (user && isAdmin) {
-                    // El Admin guarda en la base de datos de esta empresa
-                    db.collection('artifacts').doc(PRODE_APP_ID).collection('public').doc('data').collection('state').doc('global').set({ matches: matches }, { merge: true }).then(() => {
-                        showToast('👑 ¡Resultados guardados! La tabla de esta empresa se ha actualizado.');
+                    db.collection('artifacts').doc(MASTER_RESULTS_ID).collection('public').doc('data').collection('state').doc('global').set({ matches: matches }, { merge: true }).then(() => {
+                        showToast('👑 ¡Resultados oficiales guardados! Todos los puntajes han sido recalculados.');
                     }).catch(err => console.error(err));
                 }
             };
@@ -397,13 +408,11 @@
                             <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-sky-300 via-white to-sky-300"></div>
                             
                             <div className="bg-white p-2 rounded-2xl inline-block mb-4 shadow-md border border-sky-100">
-                                {/* 👇 6. LOGO DE QUILMES EN INICIO 👇 */}
-                                <img src="image_bb3a4f.png" alt="Logo Empresa" className="w-20 h-20 object-contain" onError={(e) => { e.target.onerror = null; e.target.src = 'https://via.placeholder.com/80?text=Logo' }} />
+                                <img src="ESCUDO G3 2023.jpeg" alt="Logo Empresa" className="w-20 h-20 object-contain" onError={(e) => { e.target.onerror = null; e.target.src = 'https://via.placeholder.com/80?text=Logo' }} />
                             </div>
                             
-                            {/* 👇 7. TEXTOS DE QUILMES 👇 */}
-                            <h1 className="text-3xl font-extrabold text-sky-900 mb-2">AM Quilmes</h1>
-                            <p className="text-sky-600 font-medium mb-6">Prode Mundial 2026 🇦🇷</p>
+                            <h1 className="text-3xl font-extrabold text-sky-900 mb-2">GruProde</h1>
+                            <p className="text-sky-600 font-medium mb-6">Mundial 2026 🇦🇷 Vamos Selección</p>
                             
                             <form onSubmit={handleLogin} className="space-y-3">
                                 <div>
@@ -431,7 +440,7 @@
                                     {user ? <React.Fragment>Entrar a la Cancha <ChevronRight className="w-5 h-5" /></React.Fragment> : 'Conectando...'}
                                 </button>
                                 <p className="text-xs text-sky-600 font-medium mt-4 px-2">
-                                    Usaremos tu correo como "Llave Mágica" para recuperar tus pronósticos desde cualquier dispositivo.
+                                    Usaremos tu correo como "Llave Mágica" para que puedas recuperar tus pronósticos si entrás desde tu celular u otra PC.
                                 </p>
                             </form>
                         </div>
@@ -445,9 +454,8 @@
                     <header className="bg-[#74ACDF] shadow-md sticky top-0 z-20">
                         <div className="max-w-2xl mx-auto px-4 py-4 flex justify-between items-center">
                             <div className="flex items-center gap-3">
-                                {/* 👇 8. LOGO DE QUILMES EN HEADER 👇 */}
-                                <img src="image_bb3a4f.png" alt="Logo" className="w-9 h-9 object-contain bg-white rounded-lg p-1 shadow-sm" onError={(e) => { e.target.onerror = null; e.target.src = 'https://via.placeholder.com/36?text=Logo' }} />
-                                <h1 className="text-xl font-black text-white tracking-wide drop-shadow-sm">AMQ Prode</h1>
+                                <img src="ESCUDO G3 2023.jpeg" alt="Logo" className="w-9 h-9 object-contain bg-white rounded-lg p-1 shadow-sm" onError={(e) => { e.target.onerror = null; e.target.src = 'https://via.placeholder.com/36?text=Logo' }} />
+                                <h1 className="text-xl font-black text-white tracking-wide drop-shadow-sm">GruProde 2026</h1>
                             </div>
                             <div className="flex items-center gap-2">
                                 <span className="flex items-center gap-1 text-[10px] text-sky-100 font-bold uppercase tracking-wider"><Cloud className="w-4 h-4" /></span>
@@ -531,6 +539,17 @@
                         {/* Pestaña: Pronósticos */}
                         {activeTab === 'pronosticos' && (
                             <div className="space-y-6">
+                                {/* Cartel de Advertencia Fases Finales */}
+                                <div className="bg-red-950/40 border border-red-500/50 rounded-xl p-4 mb-2">
+                                  <div className="flex items-center gap-2 text-red-400 font-bold mb-1 uppercase text-xs tracking-wider">
+                                    <AlertCircle className="w-5 h-5" />
+                                        Aviso Importante
+                                          </div>
+                                              <p className="text-red-200/90 text-sm leading-relaxed">
+                                                ⚠️ <b>Por favor, NO cargues pronósticos para 16avos, Octavos o fases siguientes</b> hasta que la administración confirme los cruces oficiales. Los resultados prematuros podrían borrarse al actualizar los equipos.
+                                              </p>
+                                            </div>
+
                                 <div className="bg-white/95 p-4 rounded-xl shadow-sm border border-sky-100 backdrop-blur-sm">
                                     <h2 className="text-2xl font-black text-sky-900">Pronósticos</h2>
                                     <p className="text-sky-600 font-medium text-sm">Cargá tus resultados por fase.</p>
@@ -607,7 +626,7 @@
                         {activeTab === 'ranking' && (
                             <div className="space-y-4">
                                 <div className="bg-white/95 p-4 rounded-xl shadow-sm border border-sky-100 backdrop-blur-sm">
-                                    <h2 className="text-2xl font-black text-sky-900 mb-1">Tabla AM Quilmes</h2>
+                                    <h2 className="text-2xl font-black text-sky-900 mb-1">Tabla de GruProde</h2>
                                 </div>
                                 <div className="bg-white rounded-2xl border border-sky-200 shadow-sm overflow-hidden">
                                     <table className="w-full text-left border-collapse">
@@ -641,8 +660,17 @@
                         {/* Pestaña: Reglas */}
                         {activeTab === 'reglas' && (
                             <div className="space-y-4">
+                                {/* Regla de Oro Destacada */}
+                                <div className="bg-red-900/30 border-l-4 border-red-500 p-4 mb-6 rounded-r-xl shadow-sm">
+                                  <h3 className="text-red-400 font-black uppercase tracking-widest text-sm mb-2 flex items-center gap-2">
+                                    <AlertCircle className="w-5 h-5" /> REGLA DE ORO: FASES FINALES
+                                  </h3>
+                                      <p className="text-slate-300 text-sm font-medium leading-relaxed">
+                                        El Prode se llena por etapas. Está estrictamente prohibido completar los pronósticos de 16avos de final en adelante hasta que se anuncien los cruces oficiales. Hacerlo antes puede generar que tus resultados se anulen o se borren del sistema.
+                                        </p>
+                                </div>
                                 <div className="bg-white/95 p-4 rounded-xl shadow-sm border border-sky-100 backdrop-blur-sm">
-                                    <h2 className="text-2xl font-black text-sky-900">Reglas del Prode</h2>
+                                    <h2 className="text-2xl font-black text-sky-900">Reglas de GruProde</h2>
                                 </div>
                                 <div className="bg-white border-2 border-green-200 p-5 rounded-2xl shadow-sm relative overflow-hidden">
                                     <div className="absolute top-0 right-0 bg-green-500 text-white font-black px-3 py-1 rounded-bl-lg text-xs">3 PUNTOS</div>
@@ -662,6 +690,16 @@
                                         <li>El botón de "Guardar" guarda los cambios de <b>todas las fases juntas</b>.</li>
                                     </ul>
                                 </div>
+                                <div className="bg-white/95 border border-sky-200 p-5 rounded-2xl shadow-sm backdrop-blur-sm">
+                                    <h3 className="font-bold text-sky-900 mb-2 text-sm uppercase">Desempate por Penales</h3>
+                                    <p className="text-sky-800 text-sm font-medium leading-relaxed">
+                                        En partidos de eliminación directa que lleguen a penales, los puntos se calculan 
+                                        sobre el resultado al final del tiempo extra (90' + 30'). 
+                                        Los penales <b>no cuentan como goles</b>. 
+                                        Si el marcador quedó 1-1 después del alargue, quien pronosticó empate cobra 
+                                        <b> 1 punto</b>, sin importar quién gane la serie de penales.
+                                    </p>
+                                </div>
                             </div>
                         )}
 
@@ -669,8 +707,11 @@
                         {activeTab === 'admin' && isAdmin && (
                             <div className="space-y-6">
                                 <div className="bg-white/95 p-4 rounded-xl shadow-sm border border-sky-100 backdrop-blur-sm">
-                                    <h2 className="text-2xl font-black text-red-600">Carga Maestra de Resultados</h2>
-                                    <p className="text-slate-600 font-medium text-sm">⚠️ Los resultados guardados aquí actualizarán las tablas de todas tus empresas.</p>
+                                    <h2 className="text-2xl font-black text-red-600">Panel de Control</h2>
+                                    <p className="text-slate-600 font-medium text-sm">Cargá los resultados oficiales reales.</p>
+                                </div>
+                                <div className="bg-red-50 border border-red-200 p-4 rounded-xl mb-4 shadow-sm">
+                                    <p className="text-xs text-red-800 font-bold">⚠️ ATENCIÓN ADMIN: Al ingresar un resultado y guardar, se calcularán los puntos de todos los usuarios automáticamente.</p>
                                 </div>
 
                                 <div className="flex overflow-x-auto pb-2 gap-2 hide-scrollbar">
@@ -710,7 +751,7 @@
                                     ))}
                                 </div>
                                 <button onClick={saveOfficialResults} className="w-full bg-red-600 hover:bg-red-700 text-white font-black py-4 rounded-xl flex justify-center items-center gap-2 shadow-lg sticky bottom-24 transition-all">
-                                    <AlertCircle className="w-5 h-5" /> Publicar Resultados Oficiales
+                                    <AlertCircle className="w-5 h-5" /> Publicar Master Global
                                 </button>
                             </div>
                         )}
