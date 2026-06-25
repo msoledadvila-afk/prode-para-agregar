@@ -48,8 +48,7 @@
 
         // 👇 ID DE LA BASE DE DATOS DEL GRUPO 3 👇
         const PRODE_APP_ID = typeof __app_id !== 'undefined' ? __app_id : 'prode-prueba';
-        const MASTER_RESULTS_ID = 'prode-master-2026'
-
+        const MASTER_RESULTS_ID = 'prode-master-PRUEBA'
         // Inicializamos Firebase
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
@@ -255,7 +254,20 @@
                 const unsubGlobal = globalRef.onSnapshot(
                     doc => {
                         if (doc.exists && doc.data().matches) {
-                            setMatches(doc.data().matches);
+                            // Los EQUIPOS, cruces y fechas SIEMPRE salen del código (initialMatches).
+                            // De Firebase solo tomamos los resultados oficiales (goles y estado).
+                            const guardados = {};
+                            doc.data().matches.forEach(sm => { guardados[sm.id] = sm; });
+                            setMatches(initialMatches.map(base => {
+                                const g = guardados[base.id];
+                                if (!g) return base;
+                                return {
+                                    ...base,
+                                    realHomeScore: (g.realHomeScore !== undefined ? g.realHomeScore : null),
+                                    realAwayScore: (g.realAwayScore !== undefined ? g.realAwayScore : null),
+                                    status: g.status || 'pending'
+                                };
+                            }));
                         }
                     },
                     error => console.error("Error recuperando resultados oficiales:", error)
