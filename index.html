@@ -147,11 +147,11 @@
             m(73, '16avos', 'Sudáfrica', 'Canadá', '28 Jun 2026 - 16:00'), m(74, '16avos', 'Alemania', 'Paraguay', '29 Jun 2026 - 17:30'),
             m(75, '16avos', 'Países Bajos', 'Marruecos', '29 Jun 2026 - 22:00'), m(76, '16avos', 'Brasil', 'Japón', '29 Jun 2026 - 14:00'),
             m(77, '16avos', 'Francia', 'Suecia', '30 Jun 2026 - 18:00'), m(78, '16avos', 'C. de Marfil', 'Noruega', '30 Jun 2026 - 14:00'),
-            m(79, '16avos', 'México', 'Suecia', '30 Jun 2026 - 22:00'), m(80, '16avos', 'Inglaterra', 'Uzbekistán', '1 Jul 2026 - 13:00'),
-            m(81, '16avos', 'EE.UU.', 'Bosnia y Herz.', '1 Jul 2026 - 21:00'), m(82, '16avos', 'Bélgica', 'Sudáfrica', '1 Jul 2026 - 17:00'),
-            m(83, '16avos', 'Colombia', 'Croacia', '2 Jul 2026 - 20:00'), m(84, '16avos', 'España', 'Austria', '2 Jul 2026 - 16:00'),
-            m(85, '16avos', 'Suiza', 'C. de Marfil', '3 Jul 2026 - 00:00'), m(86, '16avos', 'Argentina', 'Uruguay', '3 Jul 2026 - 19:00'),
-            m(87, '16avos', 'Portugal', 'Ghana', '2 Jul 2026 - 22:30'), m(88, '16avos', 'Turquía', 'Egipto', '3 Jul 2026 - 16:00'),
+            m(79, '16avos', 'México', 'Ecuador', '30 Jun 2026 - 22:00'), m(80, '16avos', 'Inglaterra', 'RD Congo', '1 Jul 2026 - 13:00'),
+            m(81, '16avos', 'EE.UU.', 'Bosnia y Herz.', '1 Jul 2026 - 21:00'), m(82, '16avos', 'Bélgica', 'Senegal', '1 Jul 2026 - 17:00'),
+            m(83, '16avos', 'Portugal', 'Croacia', '2 Jul 2026 - 20:00'), m(84, '16avos', 'España', 'Austria', '2 Jul 2026 - 16:00'),
+            m(85, '16avos', 'Suiza', 'Argelia', '3 Jul 2026 - 00:00'), m(86, '16avos', 'Argentina', 'Cabo Verde', '3 Jul 2026 - 19:00'),
+            m(87, '16avos', 'Colombia', 'Ghana', '3 Jul 2026 - 22:30'), m(88, '16avos', 'Australia', 'Egipto', '3 Jul 2026 - 15:00'),
 
             // OCTAVOS DE FINAL
             m(89, 'octavos', 'Ganador 74', 'Ganador 77', '4 Jul 2026 - 18:00'), m(90, 'octavos', 'Ganador 73', 'Ganador 75', '4 Jul 2026 - 14:00'),
@@ -551,14 +551,14 @@
                         {/* Pestaña: Pronósticos */}
                         {activeTab === 'pronosticos' && (
                             <div className="space-y-6">
-                                {/* Cartel de Advertencia Fases Finales */}
-                                <div className="bg-red-950/40 border border-red-500/50 rounded-xl p-4 mb-2">
-                                  <div className="flex items-center gap-2 text-red-400 font-bold mb-1 uppercase text-xs tracking-wider">
-                                    <AlertCircle className="w-5 h-5" />
-                                        Aviso Importante
+                               {/* Cartel Informativo Fases Finales */}
+                                <div className="bg-emerald-950/40 border border-emerald-500/50 rounded-xl p-4 mb-2">
+                                  <div className="flex items-center gap-2 text-emerald-400 font-bold mb-1 uppercase text-xs tracking-wider">
+                                    <CheckCircle2 className="w-5 h-5" />
+                                        16avos habilitados
                                           </div>
-                                              <p className="text-red-200/90 text-sm leading-relaxed">
-                                                ⚠️ <b>Por favor, NO cargues pronósticos para 16avos, Octavos o fases siguientes</b> hasta que la administración confirme los cruces oficiales. Los resultados prematuros podrían borrarse al actualizar los equipos.
+                                              <p className="text-emerald-200/90 text-sm leading-relaxed">
+                                                ✅ <b>¡Ya están cargados los 16avos de final!</b> Podés completar tus pronósticos de esta fase. Los <b>Octavos</b> y las siguientes se irán habilitando a medida que se definan los equipos clasificados. ¡Mucha suerte! 🍀
                                               </p>
                                             </div>
 
@@ -678,7 +678,7 @@
                                     <AlertCircle className="w-5 h-5" /> REGLA DE ORO: FASES FINALES
                                   </h3>
                                       <p className="text-slate-300 text-sm font-medium leading-relaxed">
-                                        El Prode se llena por etapas. Está estrictamente prohibido completar los pronósticos de 16avos de final en adelante hasta que se anuncien los cruces oficiales. Hacerlo antes puede generar que tus resultados se anulen o se borren del sistema.
+                                        El Prode se llena por etapas. Los 16avos de final ya están habilitados para cargar. Los Octavos y las fases siguientes se irán abriendo a medida que se definan los equipos clasificados; por eso todavía no aparecen. Cargá cada fase cuando esté disponible.
                                         </p>
                                 </div>
                                 <div className="bg-white/95 p-4 rounded-xl shadow-sm border border-sky-100 backdrop-blur-sm">
