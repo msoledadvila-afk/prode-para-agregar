@@ -189,6 +189,18 @@
             return now.getTime() > (matchTime.getTime() - 1800000);
         };
 
+        // Convierte la fecha del partido en número, para ordenar cronológicamente
+        const matchDateValue = (dateStr) => {
+            if (!dateStr) return Infinity;
+            let datePart = dateStr, timePart = "23:59";
+            if (dateStr.includes(' - ')) {
+                const parts = dateStr.split(' - ');
+                datePart = parts[0]; timePart = parts[1];
+            }
+            const t = new Date(`${datePart} ${timePart}:00 GMT-0300`).getTime();
+            return isNaN(t) ? Infinity : t;
+        };
+
         // COMPONENTE PARA RENDERIZAR LA BANDERA O EL EMOJI
         const FlagDisplay = ({ source, name }) => {
             if (!source || source === '❓' || source === '🏆' || source === '🥉') {
@@ -405,7 +417,9 @@
                 return groupedStandings;
             }, [matches]);
 
-            const matchesToShow = matches.filter(m => m.stage === activeStage);
+            const matchesToShow = matches
+                .filter(m => m.stage === activeStage)
+                .sort((a, b) => matchDateValue(a.date) - matchDateValue(b.date) || a.id - b.id);
 
             if (!isLogged) {
                 return (
@@ -739,7 +753,7 @@
                                 </div>
 
                                 <div className="space-y-4">
-                                    {matches.filter(m => m.stage === activeStage).map(match => (
+                                    {matches.filter(m => m.stage === activeStage).sort((a, b) => matchDateValue(a.date) - matchDateValue(b.date) || a.id - b.id).map(match => (
                                         <div key={match.id} className="bg-white rounded-2xl p-4 border-2 border-red-200 shadow-sm relative">
                                             <div className="flex justify-between text-xs font-bold text-slate-500 mb-4">
                                                 <span>Partido {match.id} | {match.date}</span>
